@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Search</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        input { margin: 5px; padding: 8px; }
+        button { padding: 8px 15px; }
+        #results { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h2>Search for Books</h2>
+    <label>Genre: <input type="text" id="genre"></label>
+    <label>Author: <input type="text" id="author"></label>
+    <label>Title: <input type="text" id="title"></label>
+    <button onclick="searchBooks()">Search</button>
+
+    <div id="results"></div>
+
+    <script>
+        async function searchBooks() {
+            const genre = document.getElementById('genre').value;
+            const author = document.getElementById('author').value;
+            const title = document.getElementById('title').value;
+            
+            const queryParams = new URLSearchParams();
+            if (genre) queryParams.append('genre_contains', genre);
+            if (author) queryParams.append('author_contains', author);
+            if (title) queryParams.append('name_contains', title);
+            
+            const url = `/books?${queryParams.toString()}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            console.log(url);
+            console.log(response);
+
+            displayResults(data);
+        }
+        
+        function displayResults(books) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = "";
+            if (books.length === 0) {
+                resultsDiv.innerHTML = "<p>No books found.</p>";
+                return;
+            }
+            
+            const list = document.createElement('ul');
+            books.forEach(book => {
+                const item = document.createElement('li');
+                item.textContent = `${book.title} by ${book.author} (Genre: ${book.genre})`;
+                list.appendChild(item);
+            });
+            resultsDiv.appendChild(list);
+        }
+    </script>
+</body>
+</html>
